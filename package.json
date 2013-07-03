@@ -1,0 +1,34 @@
+{
+  "name": "",
+  "version": "0.1.0",
+  "author": "Sébastien Piquemal <sebpiq@gmail.com>",
+  "description": "a sound-programming language for node language",
+  "scripts": {
+    "test": "grunt test"
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/nodejitsu/http-server.git"
+  },
+  "keywords": [
+    "sound",
+    "audio",
+    "dsp",
+    "dataflow"
+  ],
+  "dependencies" : {
+    "async": "0.2.x",
+    "underscore": "1.4.x",
+    "wav": "0.1.x"
+  },
+  "analyze": false,
+  "devDependencies": {
+    "mocha": "1.12.x",
+    "grunt": "0.4.x",
+    "grunt-cli": "0.1.x"
+  },
+  "license": "MIT",
+  "engines": {
+    "node": ">=0.10"
+  }
+}
