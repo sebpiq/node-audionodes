@@ -36,31 +36,42 @@ describe('utils', function() {
 
   })
   
-  describe('decodePCM', function() {
+  describe('PCMDecoder', function() {
     
     var round = function(array, dec) { return array.map(function(val) {
-      dec = dec || 4
-      return Math.round(val * Math.pow(10, 4)) / Math.pow(10, 4)
+      dec = dec || 3
+      return Math.round(val * Math.pow(10, dec)) / Math.pow(10, dec)
     })}
     
     it('should decode 16-bits mono', function(done) {
       fs.readFile(__dirname + '/sounds/steps.wav', function(err, data) {
         if (err) throw err
-        var buffers = _.range(11).map(function(i) {
+        var buffers = _.range(21).map(function(i) {
           return data.slice(1000 + (4410 * 2) * i, 1000 + (4410 * 2) * i + 10)
         })
+        var decode = utils.PCMDecoder({bitDepth: 16})
 
-        assert.deepEqual(round(utils.decodePCM(buffers[0])), [0, 0, 0, 0, 0])
-        assert.deepEqual(round(utils.decodePCM(buffers[1])), [0.1, 0.1, 0.1, 0.1, 0.1])
-        assert.deepEqual(round(utils.decodePCM(buffers[2])), [0.2, 0.2, 0.2, 0.2, 0.2])
-        assert.deepEqual(round(utils.decodePCM(buffers[3])), [0.3, 0.3, 0.3, 0.3, 0.3])
-        assert.deepEqual(round(utils.decodePCM(buffers[4])), [0.4, 0.4, 0.4, 0.4, 0.4])
-        assert.deepEqual(round(utils.decodePCM(buffers[5])), [0.5, 0.5, 0.5, 0.5, 0.5])
-        assert.deepEqual(round(utils.decodePCM(buffers[6])), [0.6, 0.6, 0.6, 0.6, 0.6])
-        assert.deepEqual(round(utils.decodePCM(buffers[7])), [0.7, 0.7, 0.7, 0.7, 0.7])
-        assert.deepEqual(round(utils.decodePCM(buffers[8])), [0.8, 0.8, 0.8, 0.8, 0.8])
-        assert.deepEqual(round(utils.decodePCM(buffers[9])), [0.9, 0.9, 0.9, 0.9, 0.9])
-        assert.deepEqual(round(utils.decodePCM(buffers[10])), [1, 1, 1, 1, 1])
+        assert.deepEqual(round(decode(buffers[0])), [-1, -1, -1, -1, -1])
+        assert.deepEqual(round(decode(buffers[1])), [-0.9, -0.9, -0.9, -0.9, -0.9])
+        assert.deepEqual(round(decode(buffers[2])), [-0.8, -0.8, -0.8, -0.8, -0.8])
+        assert.deepEqual(round(decode(buffers[3])), [-0.7, -0.7, -0.7, -0.7, -0.7])
+        assert.deepEqual(round(decode(buffers[4])), [-0.6, -0.6, -0.6, -0.6, -0.6])
+        assert.deepEqual(round(decode(buffers[5])), [-0.5, -0.5, -0.5, -0.5, -0.5])
+        assert.deepEqual(round(decode(buffers[6])), [-0.4, -0.4, -0.4, -0.4, -0.4])
+        assert.deepEqual(round(decode(buffers[7])), [-0.3, -0.3, -0.3, -0.3, -0.3])
+        assert.deepEqual(round(decode(buffers[8])), [-0.2, -0.2, -0.2, -0.2, -0.2])
+        assert.deepEqual(round(decode(buffers[9])), [-0.1, -0.1, -0.1, -0.1, -0.1])
+        assert.deepEqual(round(decode(buffers[10])), [0, 0, 0, 0, 0])
+        assert.deepEqual(round(decode(buffers[11])), [0.1, 0.1, 0.1, 0.1, 0.1])
+        assert.deepEqual(round(decode(buffers[12])), [0.2, 0.2, 0.2, 0.2, 0.2])
+        assert.deepEqual(round(decode(buffers[13])), [0.3, 0.3, 0.3, 0.3, 0.3])
+        assert.deepEqual(round(decode(buffers[14])), [0.4, 0.4, 0.4, 0.4, 0.4])
+        assert.deepEqual(round(decode(buffers[15])), [0.5, 0.5, 0.5, 0.5, 0.5])
+        assert.deepEqual(round(decode(buffers[16])), [0.6, 0.6, 0.6, 0.6, 0.6])
+        assert.deepEqual(round(decode(buffers[17])), [0.7, 0.7, 0.7, 0.7, 0.7])
+        assert.deepEqual(round(decode(buffers[18])), [0.8, 0.8, 0.8, 0.8, 0.8])
+        assert.deepEqual(round(decode(buffers[19])), [0.9, 0.9, 0.9, 0.9, 0.9])
+        assert.deepEqual(round(decode(buffers[20])), [1, 1, 1, 1, 1])
         done()
       })
     })

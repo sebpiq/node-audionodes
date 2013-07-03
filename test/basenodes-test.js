@@ -15,12 +15,14 @@ describe('SourceNode', function() {
     
       getBlock: function(next) {
         this.counter++
-        next(null, _.range(this.counter * 10, (this.counter + 1) * 10))
+        if (this.counter < 3) {
+          next(null, _.range(this.counter * 10, (this.counter + 1) * 10))
+        } else next(null, [])
       }
       
     })
     
-    it('should read the right amount of data', function(done) {
+    it('should read the right amount of data and buffer the surplus', function(done) {
       var node = new MySourceNode()
       assert.deepEqual(node._buffer, [])
       
@@ -41,6 +43,31 @@ describe('SourceNode', function() {
         function(block) {
           assert.deepEqual(block, [10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21])
           assert.deepEqual(node._buffer, [22, 23, 24, 25, 26, 27, 28, 29])
+          done()
+        }
+      ])
+    })
+    
+    it('should read the right amount of data and pad the missing data', function(done) {
+      var node = new MySourceNode()
+      assert.deepEqual(node._buffer, [])
+      
+      async.waterfall([
+        function(next) {
+          node.read(25, next)
+        },
+        function(block, next) {
+          assert.deepEqual(node._buffer, [25, 26, 27, 28, 29])
+          node.read(10, next)
+        },
+        function(block, next) {
+          assert.deepEqual(block, [25, 26, 27, 28, 29, 0, 0, 0, 0, 0])
+          assert.deepEqual(node._buffer, [])
+          node.read(5, next)
+        },
+        function(block) {
+          assert.deepEqual(block, [0, 0, 0, 0, 0])
+          assert.deepEqual(node._buffer, [])
           done()
         }
       ])
