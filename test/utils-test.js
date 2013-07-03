@@ -78,4 +78,31 @@ describe('utils', function() {
     
   })
 
+  describe('PCMEncoder', function() {
+    
+    var approxEqual = function(val1, val2) {
+      if (Math.abs(val1 - val2) <= 4) assert.ok(true)
+      else assert.equal(val1, val2)
+    }
+    
+    it('should encode to 16-bits mono', function(done) {
+      fs.readFile(__dirname + '/sounds/noise32values.raw', function(err, data) {
+        if (err) throw err
+        var encode = utils.PCMEncoder({bitDepth: 16})
+          , array = [0.48, 0.12, 0.52, -0.04, 0.1, 0.44, -0.62, 0.42, 0.8,
+                      -1, -0.84, 0.76, -0.18, 0.66, 0.14, -0.02, -0.62, -0.26,
+                      -0.26, -0.88, -0.36, -0.46, 0.52, -0.38, -0.4, -0.16, 0.18,
+                      -0.06, 0.12, 0.28, -0.46, -0.18]
+          , encoded = encode(array)
+        assert.equal(encoded.length, data.length)
+        assert.equal(encoded.length, 32 * 2)
+        _.range(32).forEach(function(i) {
+          approxEqual(encoded.readInt16LE(i * 2), data.readInt16LE(i * 2))
+        })
+        done()
+      })
+    })
+    
+  })
+
 })
