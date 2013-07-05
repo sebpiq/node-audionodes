@@ -1,7 +1,7 @@
 var assert = require('assert')
   , async = require('async')
   , _ = require('underscore')
-  , audionodes = require('../lib/audionodes')
+  , SoundFile = require('../lib/nodes/SoundFile')
   
 describe('SoundFile', function() {
 
@@ -18,7 +18,7 @@ describe('SoundFile', function() {
     }
   
     it('should read mono 16-bits wav files', function(done) {
-      var soundfile = new audionodes.SoundFile(__dirname + '/sounds/steps-mono-16b-44khz.wav')
+      var soundfile = new SoundFile(__dirname + '/sounds/steps-mono-16b-44khz.wav')
         , blocks = []
         
       soundfile.on('error', function(err) { console.error(err) })
@@ -73,7 +73,7 @@ describe('SoundFile', function() {
     })
 
     it('should loop through a file if loop=true', function(done) {
-      var soundfile = new audionodes.SoundFile(__dirname + '/sounds/stepsShort-mono-16b-44khz.wav', {loop: true})
+      var soundfile = new SoundFile(__dirname + '/sounds/stepsShort-mono-16b-44khz.wav', {loop: true})
         , blocks = []
         
       soundfile.on('error', function(err) { console.error(err) })
@@ -128,7 +128,7 @@ describe('SoundFile', function() {
     })
 
     it('should work with start and end options', function(done) {
-      var soundfile = new audionodes.SoundFile(__dirname + '/sounds/stepsShort-mono-16b-44khz.wav', {start: 0.0392, end: 0.0594})
+      var soundfile = new SoundFile(__dirname + '/sounds/stepsShort-mono-16b-44khz.wav', {start: 0.0392, end: 0.0594})
         , blocks = []
         , blockSize = Math.round((0.0594 - 0.0392) * 44100)
         
@@ -168,7 +168,7 @@ describe('SoundFile', function() {
     })
 
     it('should work with start option only', function(done) {
-      var soundfile = new audionodes.SoundFile(__dirname + '/sounds/stepsShort-mono-16b-44khz.wav', {start: 0.1594})
+      var soundfile = new SoundFile(__dirname + '/sounds/stepsShort-mono-16b-44khz.wav', {start: 0.1594})
         , blocks = []
         , blockSize = Math.round((0.1796 - 0.1594) * 44100)
         
@@ -211,7 +211,7 @@ describe('SoundFile', function() {
     })
 
     it('should work with end option only', function(done) {
-      var soundfile = new audionodes.SoundFile(__dirname + '/sounds/stepsShort-mono-16b-44khz.wav', {end: 0.0391})
+      var soundfile = new SoundFile(__dirname + '/sounds/stepsShort-mono-16b-44khz.wav', {end: 0.0391})
         , blocks = []
         , blockSize = Math.round((0.0391 / 2) * 44100)
         
@@ -254,7 +254,7 @@ describe('SoundFile', function() {
     })
 
     it('should work with start, end and loop options', function(done) {
-      var soundfile = new audionodes.SoundFile(__dirname + '/sounds/stepsShort-mono-16b-44khz.wav',
+      var soundfile = new SoundFile(__dirname + '/sounds/stepsShort-mono-16b-44khz.wav',
           {start: 0.0392, end: 0.0798, loop: true})
         , blocks = []
         , blockSize = Math.round((0.0798 - 0.0392) * 0.5 * 44100)
@@ -303,7 +303,7 @@ describe('SoundFile', function() {
     })
 
     it('should read mono mp3 files', function(done) {
-      var soundfile = new audionodes.SoundFile(__dirname + '/sounds/steps-mono-44khz.mp3')
+      var soundfile = new SoundFile(__dirname + '/sounds/steps-mono-44khz.mp3')
         , blocks = []
         
       soundfile.on('error', function(err) { console.error(err) })
@@ -358,7 +358,7 @@ describe('SoundFile', function() {
     })
 
     it('should read stereo 16-bits ogg files', function(done) {
-      var soundfile = new audionodes.SoundFile(__dirname + '/sounds/steps-stereo-16b-44khz.ogg')
+      var soundfile = new SoundFile(__dirname + '/sounds/steps-stereo-16b-44khz.ogg')
         , blocks = []
         
       soundfile.on('error', function(err) { console.error(err) })
@@ -410,6 +410,15 @@ describe('SoundFile', function() {
         )
         
         
+      })
+    })
+
+    it('should return an error if the file doesn\'t exist', function(done) {
+      var soundfile = new SoundFile(__dirname + '/sounds/wot.ogg')
+        , blocks = []
+      soundfile.on('error', function(err) {
+        assert.ok(err)
+        done()
       })
     })
 

@@ -3,6 +3,48 @@ var assert = require('assert')
   , async = require('async')
   , audionodes = require('../lib/basenodes')
 
+describe('connect', function() {
+  var MySourceNode = audionodes.SourceNode.extend({
+    init: function() {
+      this.counter = 0
+    },
+    _onConnected: function() {
+      this.counter++
+    }
+  })
+
+  var MySinkNode = audionodes.SinkNode.extend({
+    init: function() {
+      this.counter = 0
+    },
+    _onConnected: function() {
+      this.counter++
+    }
+  })
+
+  it('should connect source->sink', function() {
+  var source = new MySourceNode()
+    , sink = new MySinkNode()
+    sink.connect(source)
+    source.connect(sink)
+    sink.connect(source)
+    sink.connect(source)
+    assert.equal(sink.input, source)
+    assert.equal(source.output, sink)
+    assert.equal(source.counter, 1)
+    assert.equal(sink.counter, 1)
+  })
+
+  it('should throw an error with sink->sink and source->source', function() {
+  var source1 = new MySourceNode()
+    , sink1 = new MySinkNode()
+    , source2 = new MySourceNode()
+    , sink2 = new MySinkNode()
+    assert.throws(function() { sink1.connect(sink2) })
+    assert.throws(function() { source1.connect(source2) })
+  })
+})
+
 describe('SourceNode', function() {
 
   describe('read', function() {
