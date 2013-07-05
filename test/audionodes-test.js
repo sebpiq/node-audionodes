@@ -11,6 +11,11 @@ describe('SoundFile', function() {
       dec = (dec !== undefined ? dec : 3)
       return Math.round(val * Math.pow(10, dec)) / Math.pow(10, dec)
     })}
+
+    var round2 = function(val, dec) {
+      dec = (dec !== undefined ? dec : 3)
+      return Math.round(val * Math.pow(10, dec)) / Math.pow(10, dec)
+    }
   
     it('should read mono 16-bits wav files', function(done) {
       var soundfile = new audionodes.SoundFile(__dirname + '/sounds/steps-mono-16b-44khz.wav')
@@ -23,7 +28,6 @@ describe('SoundFile', function() {
         assert.equal(soundfile.format.channels, 1)
         assert.equal(soundfile.format.sampleRate, 44100)
 
-        var sampleCount = 0
         async.whilst(
           function() { return blocks.length < 22 },
           function(next) {
@@ -79,7 +83,6 @@ describe('SoundFile', function() {
         assert.equal(soundfile.format.channels, 1)
         assert.equal(soundfile.format.sampleRate, 44100)
 
-        var sampleCount = 0
         async.whilst(
           function() { return blocks.length < 22 },
           function(next) {
@@ -124,6 +127,181 @@ describe('SoundFile', function() {
       })
     })
 
+    it('should work with start and end options', function(done) {
+      var soundfile = new audionodes.SoundFile(__dirname + '/sounds/stepsShort-mono-16b-44khz.wav', {start: 0.0392, end: 0.0594})
+        , blocks = []
+        , blockSize = Math.round((0.0594 - 0.0392) * 44100)
+        
+      soundfile.on('error', function(err) { console.error(err) })
+      soundfile.on('ready', function() {
+        assert.equal(soundfile.channels, 1)
+        assert.equal(soundfile.format.bitDepth, 16)
+        assert.equal(soundfile.format.channels, 1)
+        assert.equal(soundfile.format.sampleRate, 44100)
+
+        async.whilst(
+          function() { return blocks.length < 2},
+          function(next) {
+            soundfile.read(blockSize, function(err, block) {
+              if (err) next(err)
+              assert.equal(block.length, 1)
+              assert.equal(block[0].length, blockSize)
+              blocks.push(block[0])
+              next()
+            })
+          },
+          function(err) {
+            if (err) throw err
+            blocks[0].slice(44, -44).forEach(function(val) {
+              assert.equal(round2(val), -0.6)
+            })
+            blocks[1].slice(44, -44).forEach(function(val) {
+              assert.equal(round2(val), 0)
+            })
+            assert.equal(soundfile.closed, true)
+            done()
+          }
+        )
+        
+        
+      })
+    })
+
+    it('should work with start option only', function(done) {
+      var soundfile = new audionodes.SoundFile(__dirname + '/sounds/stepsShort-mono-16b-44khz.wav', {start: 0.1594})
+        , blocks = []
+        , blockSize = Math.round((0.1796 - 0.1594) * 44100)
+        
+      soundfile.on('error', function(err) { console.error(err) })
+      soundfile.on('ready', function() {
+        assert.equal(soundfile.channels, 1)
+        assert.equal(soundfile.format.bitDepth, 16)
+        assert.equal(soundfile.format.channels, 1)
+        assert.equal(soundfile.format.sampleRate, 44100)
+
+        async.whilst(
+          function() { return blocks.length < 3},
+          function(next) {
+            soundfile.read(blockSize, function(err, block) {
+              if (err) next(err)
+              assert.equal(block.length, 1)
+              assert.equal(block[0].length, blockSize)
+              blocks.push(block[0])
+              next()
+            })
+          },
+          function(err) {
+            if (err) throw err
+            blocks[0].slice(44, -44).forEach(function(val) {
+              assert.equal(round2(val), 0.6)
+            })
+            blocks[1].slice(44, -44).forEach(function(val) {
+              assert.equal(round2(val), 0.8)
+            })
+            blocks[2].slice(44, -44).forEach(function(val) {
+              assert.equal(round2(val), 0)
+            })
+            assert.equal(soundfile.closed, true)
+            done()
+          }
+        )
+        
+        
+      })
+    })
+
+    it('should work with end option only', function(done) {
+      var soundfile = new audionodes.SoundFile(__dirname + '/sounds/stepsShort-mono-16b-44khz.wav', {end: 0.0391})
+        , blocks = []
+        , blockSize = Math.round((0.0391 / 2) * 44100)
+        
+      soundfile.on('error', function(err) { console.error(err) })
+      soundfile.on('ready', function() {
+        assert.equal(soundfile.channels, 1)
+        assert.equal(soundfile.format.bitDepth, 16)
+        assert.equal(soundfile.format.channels, 1)
+        assert.equal(soundfile.format.sampleRate, 44100)
+
+        async.whilst(
+          function() { return blocks.length < 3},
+          function(next) {
+            soundfile.read(blockSize, function(err, block) {
+              if (err) next(err)
+              assert.equal(block.length, 1)
+              assert.equal(block[0].length, blockSize)
+              blocks.push(block[0])
+              next()
+            })
+          },
+          function(err) {
+            if (err) throw err
+            blocks[0].slice(44, -44).forEach(function(val) {
+              assert.equal(round2(val), -1)
+            })
+            blocks[1].slice(44, -44).forEach(function(val) {
+              assert.equal(round2(val), -0.8)
+            })
+            blocks[2].slice(44, -44).forEach(function(val) {
+              assert.equal(round2(val), 0)
+            })
+            assert.equal(soundfile.closed, true)
+            done()
+          }
+        )
+        
+        
+      })
+    })
+
+    it('should work with start, end and loop options', function(done) {
+      var soundfile = new audionodes.SoundFile(__dirname + '/sounds/stepsShort-mono-16b-44khz.wav',
+          {start: 0.0392, end: 0.0798, loop: true})
+        , blocks = []
+        , blockSize = Math.round((0.0798 - 0.0392) * 0.5 * 44100)
+        
+      soundfile.on('error', function(err) { console.error(err) })
+      soundfile.on('ready', function() {
+        assert.equal(soundfile.channels, 1)
+        assert.equal(soundfile.format.bitDepth, 16)
+        assert.equal(soundfile.format.channels, 1)
+        assert.equal(soundfile.format.sampleRate, 44100)
+
+        async.whilst(
+          function() { return blocks.length < 5},
+          function(next) {
+            soundfile.read(blockSize, function(err, block) {
+              if (err) next(err)
+              assert.equal(block.length, 1)
+              assert.equal(block[0].length, blockSize)
+              blocks.push(block[0])
+              next()
+            })
+          },
+          function(err) {
+            if (err) throw err
+            blocks[0].slice(44, -44).forEach(function(val) {
+              assert.equal(round2(val), -0.6)
+            })
+            blocks[1].slice(44, -44).forEach(function(val) {
+              assert.equal(round2(val), -0.4)
+            })
+            blocks[2].slice(44, -44).forEach(function(val) {
+              assert.equal(round2(val), -0.6)
+            })
+            blocks[3].slice(44, -44).forEach(function(val) {
+              assert.equal(round2(val), -0.4)
+            })
+            blocks[4].slice(44, -44).forEach(function(val) {
+              assert.equal(round2(val), -0.6)
+            })
+            assert.equal(soundfile.closed, false)
+            done()
+          }
+        )
+        
+      })
+    })
+
     it('should read mono mp3 files', function(done) {
       var soundfile = new audionodes.SoundFile(__dirname + '/sounds/steps-mono-44khz.mp3')
         , blocks = []
@@ -135,7 +313,6 @@ describe('SoundFile', function() {
         assert.equal(soundfile.format.channels, 1)
         assert.equal(soundfile.format.sampleRate, 44100)
 
-        var sampleCount = 0
         async.whilst(
           function() { return blocks.length < 22 },
           function(next) {
@@ -191,7 +368,6 @@ describe('SoundFile', function() {
         assert.equal(soundfile.format.channels, 2)
         assert.equal(soundfile.format.sampleRate, 44100)
 
-        var sampleCount = 0
         async.whilst(
           function() { return blocks.length < 23 },
           function(next) {
